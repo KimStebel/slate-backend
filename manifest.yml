@@ -2,7 +2,7 @@
 ---
 applications:
 - name: slate-backend
-  memory: 256M
+  memory: 512M
   host: graphdb-docs-testing
   stack: cflinuxfs2
   instances: 1

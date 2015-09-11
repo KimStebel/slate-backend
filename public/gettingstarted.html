@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>IBM Graph Data Store - Getting started</title>
+    
+    <link href="images/graphdb-logo.png" rel='shortcut icon' type='image/vnd.microsoft.icon' />
+    <link href="images/graphdb-logo.png" rel='icon' type='image/png' />
+
+    <link href="stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="stylesheets/typeahead.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" type="text/css" media="print" />
+    <script src="javascripts/all.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
+    
+    <script type="text/javascript">
+   
+      $(document).ready(function() {
+        function hideCode() {
+          $.cookie('hide-code-column', 'true');
+          var hash = window.location.hash;
+          $('pre').hide();
+          $('blockquote').hide();
+          $('.dark-box').css('width', '20px');
+          $('#hideCodeButton').hide();
+          $('#showCodeButton').show();
+          $('#expand-collapse-code').toggleClass('hide-code-column');
+          var contentTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'p', 'table', 'ul', 'ol', 'aside', 'dl'];
+          for (var i in contentTags) {
+            $('.content > ' + contentTags[i]).css('margin-right', '20px');
+          }
+          if ($(hash).offset()) {
+            $(document).scrollTop($(hash).offset().top);
+          }
+          window.location.hash = hash; 
+          $(window).trigger('resize');
+        };
+
+        function showCode() {
+          $.removeCookie('hide-code-column');
+          var hash = window.location.hash;
+          $('pre').show();
+          $('blockquote').show();
+          $('.dark-box').css('width', '50%');
+          $('#hideCodeButton').show();
+          $('#showCodeButton').hide();
+          $('#expand-collapse-code').toggleClass('hide-code-column');
+          var contentTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'p', 'table', 'ul', 'ol', 'aside', 'dl'];
+          for (var i in contentTags) {
+            $('.content > ' + contentTags[i]).css('margin-right', '50%');
+          }
+          if ($(hash).offset()) {
+            $(document).scrollTop($(hash).offset().top);
+          }
+          window.location.hash = hash; 
+          $(window).trigger('resize');
+        };
+        if ($.cookie('hide-code-column')) {
+          hideCode();
+        }
+        $('#hideCodeButton').click(hideCode);
+        $('#showCodeButton').click(showCode);
+        
+        var headerSelectors = "h3";
+        var toc = $("#toc").tocify({
+          selectors: headerSelectors,
+          extendPage: false,
+          theme: "none",
+          smoothScroll: false,
+          showEffectSpeed: 0,
+          hideEffectSpeed: 180,
+          ignoreSelector: ".toc-ignore",
+          hashGenerator: 'pretty',
+          highlightOffset: 60,
+          scrollTo: 55,
+          scrollHistory: true,
+          hashGenerator: function(text, element) {
+            return element[0].getAttribute('id');
+          }
+        }).data("toc-tocify");
+        // Hack to make already open sections to start opened,
+        // instead of displaying an ugly animation
+        setTimeout(function() {
+          toc.setOption("showEffectSpeed", 180);
+        },50);
+        setupLanguages([
+        ]);
+        
+        var languageInit = $('#lang-selector li.active').text();
+        
+        $('#selected-language-value').text(languageInit);
+        $('#selected-language').click(langDropdown);
+        
+        function langDropdown() {
+          $('#lang-selector ul').toggle();
+          $('#selected-language-icon').toggleClass('open');
+        }
+        
+      });
+
+      
+    </script>
+    
+  </head>
+
+  <body class="gettingstarted">
+        
+    <div class="main-header">
+      <img src="images/graphdb-logo.png" alt="logo"/>
+      <div class="header-title">IBM Graph Data Store Documentation</div>
+    </div>
+    
+    <div class="tocify-wrapper">
+      <div id="searchbox">
+        <form>
+          <input type="text" name="search" placeholder="Search">
+          <button type="submit">
+            <img src="images/search_icon.png" alt="submit"/>
+          </button>
+        </form>
+      </div>
+      
+      <ul class="tocify-header first-header">
+		        <li class="tocify-item">
+				      <a href="index.html">Overview</a>
+				    </li>
+		        <li class="tocify-item">
+				      <a href="gettingstarted.html">Getting started</a>
+				    </li>
+				      <div id="toc"></div>
+				    		        <li class="tocify-item">
+				      <a href="api.html">API reference</a>
+				    </li>
+		        <li class="tocify-item">
+				      <a href="examples.html">Examples</a>
+				    </li>
+		        <li class="tocify-item">
+				      <a href="learnmore.html">Learn more</a>
+				    </li>
+
+      </ul>
+      
+    
+      
+      
+      
+      <ul class="toc-footer">
+
+      </ul>
+    </div>
+    <div class="page-wrapper">
+      <div id="expand-collapse-code">
+        <button class="showHideButton" id="hideCodeButton" title="hide code column"> </button>
+        <button class="showHideButton" id="showCodeButton" title="show code column"> </button>
+      </div>
+      <div class="dark-box"></div>
+      <div class="content">
+        
+        <h1 id="getting-started-with-the-graph-data-store">Getting started with the Graph Data Store</h1>
+
+<h3 id="graph-database-concepts">Graph Database Concepts</h3>
+
+<h4 id="what-is-a-graph-database?">What is a graph database?</h4>
+
+<p>A graph database is a database that uses graph structures with vertices (also called nodes),
+edges (also called arcs or lines), and properties to represent and store data.
+This structure provides index-free adjacency.
+Structuring data in a graph database makes looking at the data set simple.
+Each element can be linked to other elements using one or more edges.
+Graph processing is called traversal.
+A traversal visits the elements (vertices and edges) in a graph one at a time in a specific order.</p>
+
+<p>You don’t need to be an engineer to create a graph database.
+&ldquo;If you can whiteboard it, you can graph it,&rdquo; is the new motto.
+Team members (business analyst, developer, and DBA) can gather around a whiteboard to design a graph.
+With a whiteboard drawing,
+you can create a graph database and populate the database with properties and values.
+Because of the flexible schema,
+a graph can accommodate a wide range of properties.</p>
+
+<h4 id="why-would-you-use-a-graph-database?">Why would you use a graph database?</h4>
+
+<p>Today,
+organizations want to analyze huge amounts of data with complex relationships.
+A graph database is flexible and easy to query.
+Examining the complex relationships between vertices, properties,
+and edges can yield meaningful and valuable data.
+Graph databases can be used to produce recommendations,
+friends-of-friends,
+the shortest route, fraud detection and more.
+The following list shows other reasons why you might use a graph database.</p>
+
+<ul>
+<li>  Analyze how things are interconnected.</li>
+<li>  Analyze data to follow the relationships between people, products, and so on.</li>
+<li>  Process large amounts of raw data and generate results into a graph.</li>
+<li>  Work with data that involves complex relationships and dynamic schema.</li>
+<li>  Address constantly changing business requirements during iterative development cycles.</li>
+<li>  Because the data naturally fits a graph.</li>
+</ul>
+
+<h4 id="what-is-the-structure-of-a-graph-database?">What is the structure of a graph database?</h4>
+
+<p>A graph database uses the structure of a property graph.
+Graph computing distinguishes between structure (the graph) and process (traversal).
+Traversal is the process of visiting the elements (the vertices and edges) in a graph,
+in a systematic fashion.</p>
+
+<p>The following list describes the components of a graph database.</p>
+
+<ul>
+<li>Structure (the property graph)</li>
+<ul>
+<li>Graph – maintains a set of vertices, edges, and access to database functions such as traversals.</li>
+<li>Elements – vertices and edges are represented in JSON (JavaScript Object Notation).</li>
+<ul>
+<li>Vertices (also called nodes) – a document that represents people, businesses, accounts, or anything else you want to track, and additional fields added by the database.</li>
+<li>Edges (also called arcs or lines) - represents a connection or relationship between two vertices. Each edge contains a unique identifier, a start and end node, and a set of properties.</li>
+</ul>
+
+<p><li>Property – a string key associated with a value and attached to an element, such as a vertex or an edge.</li>
+</ul>
+<li>Process – use traversal to analyze the structure or graph. A traversal visits all the elements in a graph and checks and updates their values, usually in a specific order.</li>
+</ul></p>
+
+<h3 id="using-a-bluemix-service">Using a Bluemix service</h3>
+
+<p>IBM Graph Data Store is a service provided within the Bluemix platform.
+As you develop your mobile or web application,
+you can use Bluemix services as needed,
+leaving you to focus on your application logic and design.</p>
+
+<p>A full list of the available services is <a href="https://console.ng.bluemix.net/catalog/">available</a>.</p>
+
+<p>There are three steps to using a Bluemix service:</p>
+
+<ol>
+<li> Create an instance of the service.
+Do this by <a href="https://www.ng.bluemix.net/docs/services/reqnsi.html#req_instance">requesting a new service instance</a>.</li>
+<li> (Optional) Identify the application that will use the service.
+If your application is a Bluemix application,
+you can identify the application when you <a href="https://www.ng.bluemix.net/docs/services/reqnsi.html#req_instance">create the service instance</a>.
+If your application is <a href="https://www.ng.bluemix.net/docs/services/reqnsi.html#accser_external">external</a>,
+and is not a Bluemix application,
+you can leave the service unbound.</li>
+<li> Write code in your application that <a href="https://www.ng.bluemix.net/docs/services/reqnsi.html#config">interacts with the service</a>.</li>
+</ol>
+
+<h3 id="configuring-your-application-to-interact-with-the-graph-data-store-service">Configuring your application to interact with the Graph Data Store service</h3>
+
+<p>When you create an instance of a Graph Data Store service,
+you are provided with the details necessary for your application to interact with the service.
+The details are in JSON format.</p>
+
+<p>In the following example,
+the data for each of the credential fields is abbreviated for convenience:</p>
+<pre class="highlight json"><span class="p">{</span><span class="w">
+    </span><span class="s2">"credentials"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"apiURL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://gdsexample.stage1.ng.bluemix.net/graphs/686...."</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"75e1...3b67"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"742f...b790"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre>
+
+<p>If you are creating a Bluemix application,
+these credentials are stored for you in the <code class="prettyprint">VCAP_SERVICES</code> environment variable.</p>
+
+<p>You should ensure that your application is configured to use:</p>
+
+<ul>
+<li>  Graph Data Store endpoints, identifed by the <code class="prettyprint">apiURL</code> value.</li>
+<li>  The service instance username, identified by the <code class="prettyprint">username</code> value.</li>
+<li>  The service instance password, identified by the <code class="prettyprint">password</code> value.</li>
+</ul>
+
+<p>With these configuration changes made,
+your application should be able to interact with your Graph Data Store instance.</p>
+
+<h3 id="loading-data-into-a-graph-data-store">Loading data into a Graph Data Store</h3>
+
+<h4 id="vertices">Vertices</h4>
+
+<p>In IBM Graph Data Store,
+a vertex is simply an object that has,
+as a minimum,
+an <code class="prettyprint">id</code> and a <code class="prettyprint">label</code>.
+Optionally,
+you can have some properties.</p>
+
+<p>To be useful,
+a vertex must be connected to other vertices using <a href="#edges">edges</a>.</p>
+
+<p>In the following example,
+there are two vertices,
+both labelled as <code class="prettyprint">person</code>,
+and distinguished from each other by having unique IDs.
+Each vertex also has some properties,
+consisting of the name of the person,
+and their job.</p>
+
+<p><img alt="Diagram with two example vertices" src="images/GDS001.png" /></p>
+
+<p>In Graph Data Store,
+you create vertices using the <a href="api.html#vertex-apis">Vertex APIs</a>.</p>
+
+<h4 id="edges">Edges</h4>
+
+<p>An edge is a connection between two vertices.</p>
+
+<p>In Graph Data Store,
+it is perfectly possible to have a bidirectional edge.
+This means that the edge describes a relationship in both directions between the connected vertices.
+However,
+for clarity and simplicity,
+it is often easier for you to consider an edge to be unidirectional.
+In other words,
+an edge goes <em>from</em> one vertex <em>to</em> another vertex.
+If you require an edge to go <em>back</em> to the first vertex,
+you would create and use a second edge.</p>
+
+<p>In the following diagram,
+we have added two more vertices,
+and also created two edges,
+with the IDs 3699 and 7736,
+respectively.
+However,
+the edges are not yet connected to any vertices.
+In other words,
+we have not yet indicated how the edges help define relationships between any of the vertices.</p>
+
+<p><img alt="Diagram with two example edges" src="images/GDS002.png" /></p>
+
+<h4 id="connecting-two-vertices-using-edges">Connecting two vertices using edges</h4>
+
+<p>First we define edge 3699 as being an incoming edge to vertex f7456.</p>
+
+<p><img alt="Diagram where edge 3699 is an incoming edge to vertex f7456" src="images/GDS003.png" /></p>
+
+<p>Next we define edge 3699 as an outgoing edge from vertex a6773.</p>
+
+<p><img alt="Diagram where edge 3699 is an outgoing edge from vertex a6773" src="images/GDS004.png" /></p>
+
+<p>We now have a uni-directional relationship from an actor to a movie.
+Next,
+we need a similar uni-directional relationship from the movie to the actor.
+This time,
+we use edge 7736.</p>
+
+<p>As before,
+we first define edge 7736 as being an incoming edge to vertex a6773.</p>
+
+<p><img alt="Diagram where edge 7736 is an incoming edge to vertex a6773" src="images/GDS005.png" /></p>
+
+<p>Finally,
+we define edge 7736 as being an outgoing edge from vertex f7456.</p>
+
+<p><img alt="Diagram where edge 7736 is an outgoing edge from vertex f7456" src="images/GDS006.png" /></p>
+
+<p>In Graph Data Store,
+you create edges and connect them to vertices using the <a href="api.html#edge-apis">Edge APIs</a>.</p>
+
+<h4 id="creating-a-simple-graph-database-using-graph-data-store">Creating a simple graph database using Graph Data Store</h4>
+
+<p>We now have enough background to explore how to create a simple graph database.</p>
+
+<p>First,
+we create the <code class="prettyprint">Clint</code> vertex using the <a href="api.html#vertex-apis">Vertex API</a>:</p>
+<pre class="highlight shell">curl http://&lt;graphdatastore.bluemix.url&gt;/vertices <span class="se">\</span>
+    -X POST <span class="se">\</span>
+    -H <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+    -d <span class="s1">'{"label":"person","Name":"Clint","Type":"Actor"}'</span>
+</pre>
+
+<p>A successful result would be a JSON response similar to the following:</p>
+<pre class="highlight json"><span class="p">{</span><span class="w">
+    </span><span class="s2">"requestId"</span><span class="p">:</span><span class="s2">"9b749024-cd52-40a6-b25d-a90c09239c64"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:{</span><span class="w">
+        </span><span class="s2">"message"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"code"</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"attributes"</span><span class="p">:{}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"result"</span><span class="p">:{</span><span class="w">
+        </span><span class="s2">"data"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="mi">4296</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"label"</span><span class="p">:</span><span class="s2">"vertex"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"vertex"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"properties"</span><span class="p">:{</span><span class="w">
+                    </span><span class="s2">"Type"</span><span class="p">:[</span><span class="w">
+                        </span><span class="p">{</span><span class="w">
+                            </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"1ll-3bc-2dh"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"value"</span><span class="p">:</span><span class="w">
+                            </span><span class="s2">"Actor"</span><span class="w">
+                        </span><span class="p">}</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="s2">"Label"</span><span class="p">:[</span><span class="w">
+                        </span><span class="p">{</span><span class="w">
+                            </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"t5-3bc-sl"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"value"</span><span class="p">:</span><span class="s2">"person"</span><span class="w">
+                        </span><span class="p">}</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="s2">"Name"</span><span class="p">:[</span><span class="w">
+                        </span><span class="p">{</span><span class="w">
+                            </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"17d-3bc-1l1"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"value"</span><span class="p">:</span><span class="s2">"Clint"</span><span class="w">
+                        </span><span class="p">}</span><span class="w">
+                    </span><span class="p">]</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"meta"</span><span class="p">:{}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre>
+
+<p>Notice that the IDs for the vertex and its three defined properties are each generated automatically.</p>
+
+<p>We can then create the <code class="prettyprint">Million Dollar Baby</code> vertex using a similar call:</p>
+<pre class="highlight shell">curl http://&lt;graphdatastore.bluemix.url&gt;/vertices <span class="se">\</span>
+    -X POST <span class="se">\</span>
+    -H <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+    -d <span class="s1">'{"Label":"film","Name":"Million Dollar Baby","Type":"Movie"}'</span>
+</pre>
+
+<p>Optionally, we can check which vertices are present in the graph database by using a simple <code class="prettyprint">GET</code> call:</p>
+<pre class="highlight shell">curl http://&lt;graphdatastore.bluemix.url&gt;/vertices <span class="se">\</span>
+    -X GET
+</pre>
+
+<p>Now we can create an edge that connects the actor and the movie vertices,
+using the <a href="api.html#edge-apis">Edge API</a>:</p>
+<pre class="highlight shell">curl http://&lt;graphdatastore.bluemix.url&gt;/edges <span class="se">\</span>
+    -X POST <span class="se">\</span>
+    -H <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+    -d <span class="s1">'{"outV":"4296","label":"stars in","inV":"4216"}'</span>
+</pre>
+
+<p>A successful result returns JSON similar to the following:</p>
+<pre class="highlight json"><span class="p">{</span><span class="w">
+    </span><span class="s2">"requestId"</span><span class="p">:</span><span class="s2">"cf9a2633-9c5f-4a26-91cd-f3a409c1c6c2"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:{</span><span class="w">
+        </span><span class="s2">"message"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"code"</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"attributes"</span><span class="p">:{}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"result"</span><span class="p">:{</span><span class="w">
+        </span><span class="s2">"data"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"1zt-3bc-36d-394"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"label"</span><span class="p">:</span><span class="s2">"stars in"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"edge"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"inVLabel"</span><span class="p">:</span><span class="s2">"vertex"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"outVLabel"</span><span class="p">:</span><span class="s2">"vertex"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"inV"</span><span class="p">:</span><span class="mi">4216</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"outV"</span><span class="p">:</span><span class="mi">4296</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"meta"</span><span class="p">:{}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre>
+
+<h4 id="bulk-loading-data-into-graph-data-store">Bulk loading data into Graph Data Store</h4>
+
+<p>While individual vertices and edges can be created in a Graph Data Store
+by using the corresponding <a href="api.html">API</a> calls,
+an alternative is to load all the data in one go using the <a href="api.html#input/output-apis">Input/Output APIs</a>.</p>
+
+<p>The data can be provided in one of two formats:</p>
+
+<ul>
+<li>  <a href="http://graphml.graphdrawing.org/">GraphML</a> is an XML-based format.</li>
+<li>  <a href="http://tinkerpop.incubator.apache.org/docs/3.0.0-incubating/#graphson-reader-writer">GraphSON</a>
+is a JSON-based format, created as part of the Apache Tinkerpop work.</li>
+</ul>
+
+<p>While both formats are supported in Graph Data Store,
+the GraphSON format is more familiar to those using JSON for their applications,
+and therefore is the format used in this documentation.</p>
+
+<h4 id="example-of-graphson-format-data">Example of GraphSON format data</h4>
+<pre class="highlight json"><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="mi">4216</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"label"</span><span class="p">:</span><span class="s2">"vertex"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"inE"</span><span class="p">:{</span><span class="w">
+        </span><span class="s2">"stars in"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"1zt-3bc-36d-394"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"outV"</span><span class="p">:</span><span class="mi">4296</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"properties"</span><span class="p">:{</span><span class="w">
+        </span><span class="s2">"Type"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"1lb-394-2dh"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"value"</span><span class="p">:</span><span class="s2">"Movie"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"Label"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"sv-394-sl"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"value"</span><span class="p">:</span><span class="s2">"film"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"Name"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"173-394-1l1"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"value"</span><span class="p">:</span><span class="s2">"Million Dollar Baby"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="mi">4296</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"label"</span><span class="p">:</span><span class="s2">"vertex"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"outE"</span><span class="p">:{</span><span class="w">
+        </span><span class="s2">"stars in"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"1zt-3bc-36d-394"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"inV"</span><span class="p">:</span><span class="mi">4216</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"properties"</span><span class="p">:{</span><span class="w">
+        </span><span class="s2">"Type"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"1ll-3bc-2dh"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"value"</span><span class="p">:</span><span class="s2">"Actor"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"Label"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"t5-3bc-sl"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"value"</span><span class="p">:</span><span class="s2">"person"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"Name"</span><span class="p">:[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"17d-3bc-1l1"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"value"</span><span class="p">:</span><span class="s2">"Clint"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre>
+
+<p>In the example GraphSON data,
+you can see the two example vertices defined earlier in this topic:
+the <code class="prettyprint">Actor</code> called <code class="prettyprint">Clint</code> and the <code class="prettyprint">Movie</code> called <code class="prettyprint">Million Dollar Baby</code>.</p>
+
+<p>The two vertices are related by an edge with the automatically-generated ID <code class="prettyprint">1zt-3bc-36d-394</code>.</p>
+
+<p>For the <code class="prettyprint">Actor</code> vertex,
+the edge is an <em>outgoing</em> edge <code class="prettyprint">outE</code>.</p>
+
+<p>For the <code class="prettyprint">Movie</code> vertex,
+the edge is an <em>incoming</em> edge <code class="prettyprint">inE</code>.</p>
+
+<p><aside class="warning">GraphSON is not a pure JSON format.
+In particular,
+notice that each &lsquo;line&rsquo; of the GraphSON data,
+which describes a vertex,
+is <em>not</em> separated by the comma (<code class="prettyprint">,</code>) character you would normally expect to separate peer JSON data entries.</aside></p>
+
+      </div>
+      <div class="dark-box">
+        <div id="lang-selector">
+          <div id="selected-language">
+            <span id="selected-language-label">Language:</span>
+            <span id="selected-language-value"></span>
+            <span id="selected-language-icon"></span>
+          </div>
+          <ul>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
