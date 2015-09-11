@@ -3,7 +3,7 @@
 applications:
 - name: slate-backend
   memory: 256M
-  host: slate-backend
+  host: graphdb-docs-testing
   stack: cflinuxfs2
   instances: 1
   path: .
