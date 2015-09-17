@@ -8,7 +8,10 @@ scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
   cache,
+  filters,
   ws
 )
 
 libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _ )
+
+routesGenerator := InjectedRoutesGenerator

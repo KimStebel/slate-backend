@@ -4,6 +4,7 @@
 
 # Home page
 GET     /graph                           controllers.Application.index
+PUT     /cors/:user                      controllers.Application.cors(user:String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /                    controllers.Assets.at(path="/public", file="index.html")
