@@ -9,11 +9,41 @@ import scala.concurrent.Future
 import play.api.libs.ws._
 import play.api.libs.json.Json
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.iteratee.Enumerator
 
 class Application @Inject() (ws: WSClient) extends Controller {
-
-  def index = Action {
-    Ok("test")
+  
+  private implicit def Response2Result(response: Future[WSResponse]): Future[Result] = {
+    response map {
+      response =>
+        val headers = response.allHeaders map {
+          h => (h._1, h._2.head)
+        } filterNot { _._1.equalsIgnoreCase("Transfer-Encoding") }
+        Result(ResponseHeader(response.status, headers), Enumerator(response.body.getBytes))
+    }
+  }
+  
+  def graph = Action.async { request =>
+    val body = request.body.asJson.get
+    val creds = (Json.parse(System.getenv("VCAP_SERVICES")) \ "GraphDataStore").head \ "credentials"
+    val Seq(username, password, apiURL) = Seq("username", "password","apiURL") map { fieldName => (creds \ fieldName).as[String] }
+    val body2 = Json.obj(
+      "gremlin" -> """
+        g.V()
+         .hasLabel('person')
+         .has('type','Actor')
+         .has('name','Kevin Bacon')
+         .repeat(__.outE().inV().dedup().simplePath())
+         .until(__.hasLabel('person').has('name','Bill Paxton'))
+         .limit(12)
+         .path()
+      """
+    )
+    ws.url(apiURL + "/gremlin")
+      .withRequestTimeout(60000)
+      .withAuth(username, password, WSAuthScheme.BASIC)
+      .post(body)
+    
   }
   
   def cors(user:String) = Action.async { request =>

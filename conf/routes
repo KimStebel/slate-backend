@@ -2,8 +2,7 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET     /graph                           controllers.Application.index
+POST    /graph                           controllers.Application.graph
 PUT     /cors/:user                      controllers.Application.cors(user:String)
 
 # Map static resources from the /public folder to the /assets URL path
